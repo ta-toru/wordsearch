@@ -55,7 +55,7 @@ th {
   margin-top: 10px;
 }
 
-/* 追加：入力文字ボタン */
+/* 入力文字ボタン */
 .char-btn {
   margin: 2px;
   padding: 6px 10px;
@@ -63,5 +63,16 @@ th {
   border-radius: 4px;
   border: 1px solid #007BFF;
   background: #e7f1ff;
+  cursor: pointer;
+}
+
+/* 選択された文字ボタン */
+.selected-btn {
+  margin: 2px;
+  padding: 6px 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #28a745;
+  background: #d4edda;
   cursor: default;
 }

@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>文字拾い単語検索サイト（JS版）</title>
+  <title>文字パターン検索サイト</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🔡 文字拾い単語検索サイト（JavaScript版）</h1>
+  <h1>🔡 文字パターン検索サイト</h1>
 
   <form id="form">
     <label>使用言語：</label>
@@ -15,14 +15,11 @@
       <option value="ja">日本語</option>
     </select><br>
 
-    <label>文字入力（?または数字以外の文字）:</label>
+    <label>文字パターン（?は任意文字）:</label>
     <input type="text" id="pattern" placeholder="? または文字"><br>
 
     <!-- 入力文字ボタン表示用 -->
     <div id="char-buttons" style="margin-top:10px;"></div>
-
-    <!-- 選択された文字の順序表示 -->
-    <div id="selected-chars" style="margin-top:10px;"></div>
 
     <button type="submit">検索</button>
   </form>

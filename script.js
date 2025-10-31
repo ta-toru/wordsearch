@@ -23,20 +23,31 @@ function pickLetters(word, positions) {
 // ======== 「?」パターンを正規表現に変換 ========
 function patternToRegex(pattern) {
   // 例: "??a?" → /^..a.$/
-  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // 正規表現用にエスケープ
+  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regexStr = "^" + escaped.replace(/\?/g, ".") + "$";
-  return new RegExp(regexStr, "u"); // u フラグ：Unicode対応
+  return new RegExp(regexStr, "u"); // Unicode対応
 }
+
+// ======== 入力文字を1文字ずつボタン化 ========
+const patternInput = document.getElementById("pattern");
+const charButtonsDiv = document.getElementById("char-buttons");
+
+patternInput.addEventListener("input", () => {
+  const chars = patternInput.value.split("");
+  charButtonsDiv.innerHTML = chars
+    .map(c => `<button type="button" class="char-btn">${c}</button>`)
+    .join("");
+});
 
 // ======== メイン処理 ========
 document.getElementById("form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const lang = document.getElementById("lang").value;
-  const patternInput = document.getElementById("pattern").value.trim();
+  const pattern = patternInput.value.trim();
   const resultDiv = document.getElementById("result");
 
-  if (!patternInput) {
+  if (!pattern) {
     resultDiv.innerHTML = "<p>パターンを入力してください。</p>";
     return;
   }
@@ -46,13 +57,13 @@ document.getElementById("form").addEventListener("submit", async (e) => {
   let results = [];
 
   // ======== 「?」検索モード ========
-  if (patternInput.includes("?")) {
-    const regex = patternToRegex(patternInput);
+  if (pattern.includes("?")) {
+    const regex = patternToRegex(pattern);
     results = dictionary.filter(w => regex.test(w));
 
   // ======== 数字による拾いモード ========
   } else {
-    const positions = patternInput
+    const positions = pattern
       .split(",")
       .map(p => parseInt(p.trim()))
       .filter(n => !isNaN(n));

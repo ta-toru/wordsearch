@@ -9,37 +9,52 @@ async function loadDictionary(lang) {
     .filter(w => w.length > 0);
 }
 
-// ======== 指定位置から文字を拾う ========
-function pickLetters(word, positions) {
-  let chars = [];
-  for (let p of positions) {
-    if (p >= 1 && p <= word.length) {
-      chars.push(word[p - 1]);
-    }
-  }
-  return chars.join("");
-}
-
 // ======== 「?」パターンを正規表現に変換 ========
 function patternToRegex(pattern) {
-  // 例: "??a?" → /^..a.$/
   const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regexStr = "^" + escaped.replace(/\?/g, ".") + "$";
-  return new RegExp(regexStr, "u"); // Unicode対応
+  return new RegExp(regexStr, "u");
 }
 
-// ======== 入力文字を1文字ずつボタン化 ========
+// ======== 入力文字・ボタン関連 ========
 const patternInput = document.getElementById("pattern");
 const charButtonsDiv = document.getElementById("char-buttons");
+const selectedDiv = document.getElementById("selected-chars");
 
+// 選択された文字の順序
+let selectedChars = [];
+
+// 入力欄の監視（数字除外）
 patternInput.addEventListener("input", () => {
+  // 数字を削除
+  patternInput.value = patternInput.value.replace(/[0-9]/g, "");
+
+  // 文字をボタン化
   const chars = patternInput.value.split("");
   charButtonsDiv.innerHTML = chars
-    .map(c => `<button type="button" class="char-btn">${c}</button>`)
+    .map((c, idx) => `<button type="button" class="char-btn" data-index="${idx}">${c}</button>`)
     .join("");
+
+  selectedChars = [];
+  updateSelectedDisplay();
+
+  // ボタンクリックイベントを設定
+  document.querySelectorAll(".char-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const char = btn.textContent;
+      selectedChars.push(char);
+      updateSelectedDisplay();
+    });
+  });
 });
 
-// ======== メイン処理 ========
+function updateSelectedDisplay() {
+  selectedDiv.innerHTML = selectedChars
+    .map(c => `<button type="button" class="selected-btn">${c}</button>`)
+    .join("");
+}
+
+// ======== メイン検索処理 ========
 document.getElementById("form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -47,8 +62,8 @@ document.getElementById("form").addEventListener("submit", async (e) => {
   const pattern = patternInput.value.trim();
   const resultDiv = document.getElementById("result");
 
-  if (!pattern) {
-    resultDiv.innerHTML = "<p>パターンを入力してください。</p>";
+  if (!pattern && selectedChars.length === 0) {
+    resultDiv.innerHTML = "<p>文字を入力または選択してください。</p>";
     return;
   }
 
@@ -56,36 +71,26 @@ document.getElementById("form").addEventListener("submit", async (e) => {
   const dictionary = await loadDictionary(lang);
   let results = [];
 
-  // ======== 「?」検索モード ========
+  // ======== 「?」パターン検索 ========
   if (pattern.includes("?")) {
     const regex = patternToRegex(pattern);
     results = dictionary.filter(w => regex.test(w));
 
-  // ======== 数字による拾いモード ========
-  } else {
-    const positions = pattern
-      .split(",")
-      .map(p => parseInt(p.trim()))
-      .filter(n => !isNaN(n));
-
-    for (const word of dictionary) {
-      const picked = pickLetters(word, positions);
-      if (dictionary.includes(picked) && picked !== word) {
-        results.push(`${word} → ${picked}`);
-      }
-    }
+  // ======== 選択された文字順検索 ========
+  } else if (selectedChars.length > 0) {
+    const pickedWord = selectedChars.join("").toLowerCase();
+    results = dictionary.filter(w => w === pickedWord);
   }
 
   // ======== 結果表示 ========
   if (results.length > 0) {
-    let html = `
+    resultDiv.innerHTML = `
       <h2>結果（${lang === "en" ? "英語" : "日本語"}）</h2>
       <table>
         <tr><th>単語</th></tr>
         ${results.map(r => `<tr><td>${r}</td></tr>`).join("")}
       </table>
     `;
-    resultDiv.innerHTML = html;
   } else {
     resultDiv.innerHTML = `<p>一致する単語は見つかりませんでした。</p>`;
   }

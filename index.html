@@ -15,11 +15,14 @@
       <option value="ja">日本語</option>
     </select><br>
 
-    <label>拾う位置（例：1,2,3 または ???）または「?」検索:</label>
-    <input type="text" id="pattern" placeholder="1,2,3 または ???"><br>
+    <label>文字入力（?または数字以外の文字）:</label>
+    <input type="text" id="pattern" placeholder="? または文字"><br>
 
     <!-- 入力文字ボタン表示用 -->
     <div id="char-buttons" style="margin-top:10px;"></div>
+
+    <!-- 選択された文字の順序表示 -->
+    <div id="selected-chars" style="margin-top:10px;"></div>
 
     <button type="submit">検索</button>
   </form>
